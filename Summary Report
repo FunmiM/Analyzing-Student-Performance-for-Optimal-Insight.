@@ -1,0 +1,95 @@
+### Summary Report: Student Performance Analysis
+
+### 1. Data Cleaning & Preparation
+
+Two datasets were loaded and examined:
+- **Maths dataset:** 395 students, 33 attributes
+- **Portuguese dataset:** 649 students, 33 attributes
+
+The following checks were carried out:
+
+- **Missing values:** None found in either dataset, both were complete.
+- **Duplicates:** No duplicate rows found in either dataset.
+- **Value range validation:** All student ages fell within the valid range of 15–22. All grades (G1, G2, G3) fell within the valid range of 0–20.
+- **Data types:** Numerical and categorical columns were correctly typed. Categorical columns were later encoded, binary columns mapped to 0/1, and multi-category columns (Mjob, Fjob, reason, guardian) were one-hot encoded before modelling.
+
+No data issues were encountered. Both datasets were clean and ready for analysis without any imputation or removal of records.
+
+---
+
+### 2. Exploratory Data Analysis (EDA)
+
+#### Grade Distribution (G3)
+- Maths final grades showed a wider spread with more students scoring at the lower end, and a notable spike at 0 (students who likely dropped out or did not sit the exam).
+- Portuguese final grades were more normally distributed and generally higher on average, suggesting students perform more consistently in Portuguese than in Maths.
+
+#### Correlation with G3
+- **G2 (second period grade)** was the strongest predictor of G3 in both datasets, confirmed by both the correlation heatmap and the OLS loop. This makes intuitive sense, a student's most recent grade is the best indicator of their final grade.
+- **G1 (first period grade)** was the second strongest predictor, also highly correlated with G3.
+- **Failures** (number of past class failures) showed a strong negative correlation with G3, students with prior failures consistently scored lower.
+- **Study time** showed a modest positive correlation with G3 in both courses.
+- **Absences** showed a weak negative relationship with G3, higher absences tend to slightly lower grades, though the effect was not strong.
+- **Alcohol consumption** (both workday and weekend) showed a small negative correlation with G3.
+
+#### Impact of Categorical Variables on G3
+
+| Factor | Finding |
+|--------|---------|
+| **Higher education aspiration** | Students who wanted to pursue higher education scored significantly higher in both Maths and Portuguese — the single strongest categorical predictor |
+| **Parental education (Medu/Fedu)** | Higher parental education levels consistently linked to better student grades across both courses |
+| **Internet access** | Students with internet access at home performed slightly better on average |
+| **Gender** | Males performed marginally better in Maths; females performed marginally better in Portuguese |
+| **School** | Gabriel Pereira (GP) students slightly outperformed Mousinho da Silveira (MS) students |
+| **Romantic relationships** | Students in romantic relationships scored slightly lower on average in both courses |
+| **School support** | Counterintuitively, students receiving extra school support scored lower — likely because support is targeted at already-struggling students |
+| **Family support** | Minimal difference in grades between students with and without family support |
+| **Paid classes** | Students taking extra paid classes showed no clear grade advantage |
+| **Guardian** | Students whose guardian was their mother or father performed similarly; students with other guardians scored slightly lower |
+
+---
+
+### 3. Predictive Modelling
+
+Two models were trained and evaluated for each course, using prior grades (G1, G2) and all other encoded features as inputs.
+
+#### Maths Dataset Results
+
+| Model | RMSE | R² | MAE |
+|-------|------|----|-----|
+| Linear Regression (with G1/G2) | 2.38 | 0.724 | 1.65 |
+| Random Forest (with G1/G2)     | 1.92 | 0.820 | 1.16 |
+
+#### Portuguese Dataset Results
+
+| Model | RMSE | R² | MAE |
+|-------|------|----|-----|
+| Linear Regression (with G1/G2) | 1.21 | 0.849 | 0.765 |
+| Random Forest (with G1/G2)     | 1.26 | 0.838 | 0.762 |
+
+**Key observations:**
+- For Maths, Random Forest outperformed Linear Regression (R² 0.82 vs 0.72), suggesting non-linear relationships between features and Maths grades.
+- For Portuguese, Linear Regression marginally outperformed Random Forest (R² 0.849 vs 0.838), suggesting the relationships in that dataset are more linear in nature.
+- Both models performed better on Portuguese than Maths overall, reflecting the more consistent grade distribution in that course.
+- Across both courses and both models, R² values above 0.72 confirm that prior grades (G1, G2) combined with student background factors are strong and reliable predictors of final performance.
+- Based on the results, the best model for each course is:
+
+Maths: Random Forest (R² = 0.82, RMSE = 1.92)
+Portuguese: Linear Regression (R² = 0.849, RMSE = 1.21)
+
+---
+
+### 4. Recommendations for Schools
+
+Based on the analysis, the following actions could improve student outcomes:
+
+1. **Early identification of at-risk students** — Students with prior failures are at high risk of poor final grades. Schools should intervene early, ideally after G1 results, to provide targeted support.
+
+2. **Encourage higher education aspirations** — The strongest categorical predictor of success was a student's intention to pursue higher education. Schools should actively cultivate this ambition through career guidance and mentorship programmes.
+
+3. **Monitor alcohol consumption patterns** — Workday and weekend alcohol consumption showed a negative relationship with grades. Awareness programmes could help, particularly for students showing other risk signs.
+
+4. **Address absenteeism proactively** — While the effect of absences on grades was modest, students with high absences are still at elevated risk. Attendance monitoring and outreach to disengaged students is advisable.
+
+5. **Re-evaluate school support allocation** — Extra school support appears to be reactive rather than preventative. Earlier, proactive academic support before students fall behind may produce better outcomes than remedial intervention.
+
+6. **Parental engagement** — Given the link between parental education and student performance, schools should invest in programmes that engage parents with lower education backgrounds in their children's learning.
